@@ -1,0 +1,288 @@
+---
+title: "Spécialités"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+library(tidyverse)
+library(ggcpesrthemes)
+library(RColorBrewer)
+```
+
+```{r load}
+matieres <- read.csv("matieres.csv", stringsAsFactors = TRUE)
+specialites <- read.csv("specialites.csv")
+
+bg21 <- read.csv("0671557D_BUT-Informatique_7967.csv",sep=";") %>%
+  filter(Diplôme == "Bac en préparation", Série.diplôme == "Série Générale") %>%
+  filter(Série.Domaine.Filière != "") %>%
+  mutate_at(
+    vars(starts_with("EDS.BAC.")),
+    factor, levels = specialites$Spécialité, labels = specialites$Abréviation
+  )
+
+bg19 <- read.csv("0671557D_Info.2019.csv",sep=";") %>%
+  filter(Diplôme == "Bac en préparation", Série.diplôme %in% c("Scientifique","Littéraire","Economique et social")) %>%
+  filter(Série.Domaine.Filière != "") %>%
+  mutate(Série.Domaine.Filière = factor(Série.Domaine.Filière, levels=c("S","ES","L")))
+```
+
+```{r bg19.cohorte.1.data, fig.width=10, fig.height=2}
+df <- bg19 %>%
+  group_by(Série.Domaine.Filière) %>%
+  summarise(nombre = n())
+```
+
+- Nombre de groupes : `r nrow(df)`
+- Taille des groupes : `r range(df$nombre)`
+
+```{r bg19.cohorte.1.plot, fig.width=10, fig.height=2}
+df %>%
+  ggplot(aes(x=reorder(Série.Domaine.Filière,nombre),y=nombre,fill=Série.Domaine.Filière)) +
+    geom_col() +
+    coord_flip() +
+    xlab("Série") + ylab("Nombre de candidats") +
+    guides(fill=FALSE) +
+    ggtitle("Catégorisation des candidats avec l'ancien Bac général (séries)") +
+    theme_cpesr_cap() +
+    theme(
+      panel.grid.major.y = element_blank(),
+      panel.grid.major.x = element_line(color="grey",size=0.2)
+      )
+```
+
+
+```{r bg19.cohorte.2.data, fig.width=10, fig.height=3}
+df <- bg19 %>%
+  group_by(Série.Domaine.Filière, Spécialité.diplôme) %>%
+  summarise(nombre = n()) %>%
+  mutate(groupe = paste0(Série.Domaine.Filière,'(',Spécialité.diplôme,')'))
+```
+
+- Nombre de groupes : `r nrow(df)`
+- Taille des groupes : `r range(df$nombre)`
+
+```{r bg19.cohorte.2.plot, fig.width=10, fig.height=3}
+df %>%
+  ggplot(aes(x=reorder(Spécialité.diplôme,nombre),y=nombre,fill=Série.Domaine.Filière)) +
+    geom_col() +
+    coord_flip() +
+    facet_grid(Série.Domaine.Filière~., scales = "free_y", space = "free_y") +
+    xlab("Spécialité") + ylab("Nombre de candidats") +
+    guides(fill=FALSE) +
+    ggtitle("Catégorisation des candidats avec l'ancien Bac général (séries + options)") +
+    theme_cpesr_cap() +
+    theme(
+      panel.grid.major.y = element_blank(),
+      panel.grid.major.x = element_line(color="grey",size=0.2)
+      )
+```
+
+```{r bg21.cohorte.data, fig.width=10, fig.height=10}
+df <- bg21 %>%
+  mutate(groupe = paste0(EDS.BAC.Terminale," & ", EDS.BAC.Terminale.1)) %>%
+  group_by(groupe) %>%
+  summarise(nombre = n()) %>%
+  mutate(groupe = reorder(groupe,nombre))
+nb_groupes <- nrow(df)
+palette_groupes <- rep(brewer.pal(8, "Dark2"),nb_groupes/8+1)[1:nb_groupes]
+```
+
+- Nombre de groupes : `r nrow(df)`
+- Taille des groupes : `r range(df$nombre)`
+
+```{r bg21.cohorte.1.plot, fig.width=10, fig.height=10}
+df %>%
+  ggplot(aes(x=groupe,y=nombre,fill=groupe)) +
+    geom_col() +
+    coord_flip() +
+    scale_fill_manual(values=palette_groupes) +
+    xlab("Spécialités") + ylab("Nombre de candidats") +
+    guides(fill=FALSE) +
+    ggtitle("Catégorisation des candidats avec le nouveau Bac général (spécialités)") +
+    theme_cpesr_cap() +
+    theme(
+      panel.grid.major.y = element_blank(),
+      panel.grid.major.x = element_line(color="grey",size=0.2)
+      )
+```
+
+```{r bg21.cohorte.2.data, fig.width=10, fig.height=15}
+df <- bg21 %>%
+  mutate(groupe = paste0(EDS.BAC.Terminale," & ", EDS.BAC.Terminale.1)) %>%
+  mutate(options = case_when(
+    Option.facultative.1.Scolarité == "" ~ "Aucune",
+    Option.facultative.2.Scolarité == "" ~ Option.facultative.1.Scolarité,
+    TRUE ~ paste0(Option.facultative.1.Scolarité, " & ",Option.facultative.2.Scolarité)
+  )) %>%
+  mutate(groupe.options = paste0(groupe," (", options,")")) %>%
+  group_by(groupe, options, groupe.options) %>%
+  summarise(nombre = n()) %>%
+  group_by(groupe) %>%
+  mutate(nombre.grp = sum(nombre)) %>%
+  ungroup() %>%
+  mutate(
+    groupe = reorder(groupe,-nombre.grp),
+    groupe.options = reorder(groupe.options,nombre.grp*1000+nombre))
+```
+
+- Nombre de groupes : `r nrow(df)`
+- Taille des groupes : `r range(df$nombre)`
+
+```{r bg21.cohorte.2.plot, fig.width=10, fig.height=20}
+df %>%
+  ggplot(aes(groupe.options,y=nombre,fill=groupe)) +
+    geom_col() +
+    coord_flip() +
+    scale_fill_manual(values=rev(palette_groupes)) +
+    facet_grid(groupe~., scales = "free_y", space = "free_y", labeller = label_wrap_gen(width=6)) +
+    xlab("Spécialités (options)") + ylab("Nombre de candidats") +
+    guides(fill=FALSE) +
+    ggtitle("Catégorisation des candidats avec le nouveau Bac général (spécialités + options)") +
+    theme_cpesr_cap() +
+    theme(
+      panel.grid.major.y = element_blank(),
+      panel.grid.major.x = element_line(color="grey",size=0.2)
+      )
+```
+
+```{r bg21.cohorte.3.data, fig.width=10, fig.height=40}
+df <- bg21 %>%
+  mutate(groupe = paste0(EDS.BAC.Terminale," & ", EDS.BAC.Terminale.1)) %>%
+  mutate(options = case_when(
+    Option.facultative.1.Scolarité == "" ~ "Aucune",
+    Option.facultative.2.Scolarité == "" ~ Option.facultative.1.Scolarité,
+    TRUE ~ paste0(Option.facultative.1.Scolarité, " & ",Option.facultative.2.Scolarité)
+  )) %>%
+  mutate(groupe.options = paste0(groupe," (", EDS.BAC.Abandonné," + ", options,")")) %>%
+  group_by(groupe, options, groupe.options) %>%
+  summarise(nombre = n()) %>%
+  group_by(groupe) %>%
+  mutate(nombre.grp = sum(nombre)) %>%
+  ungroup() %>%
+  mutate(
+    groupe = reorder(groupe,-nombre.grp),
+    groupe.options = reorder(groupe.options,nombre.grp*1000+nombre))
+```
+
+- Nombre de groupes : `r nrow(df)`
+- Taille des groupes : `r range(df$nombre)`
+
+```{r bg21.cohorte.3.plot, fig.width=10, fig.height=45}
+df %>%
+  ggplot(aes(groupe.options,y=nombre,fill=groupe)) +
+    geom_col() +
+    coord_flip() +
+    scale_fill_manual(values=rev(palette_groupes)) +
+    facet_grid(groupe~., scales = "free_y", space = "free_y", labeller = label_wrap_gen(width=6)) +
+    xlab("Spécialités (spécialité abandonnée + options)") + ylab("Nombre de candidats") +
+    guides(fill=FALSE) +
+    ggtitle("Catégorisation des candidats avec le nouveau Bac général (spécialités 1ere et Term + options)") +
+    theme_cpesr_cap() +
+    theme(
+      panel.grid.major.y = element_blank(),
+      panel.grid.major.x = element_line(color="grey",size=0.2)
+      )
+```
+
+
+## Notes 
+
+```{r notes.1, fig.width=10, fig.height=6}
+bg21 %>%
+  select(Numéro,Série.Domaine.Filière, Niveau.de.la.classe, ends_with('..note.')) %>%
+  pivot_longer(
+    cols = ends_with('..note.'),
+    names_to = "Matière",
+    values_to = "Note",
+    values_transform = list(Note = as.numeric),
+    values_drop_na = TRUE
+  ) %>%
+  mutate(Matière = str_replace(Matière,"\\.\\.note\\.","")) %>%
+  left_join(matieres) %>%
+  mutate(Type = fct_rev(Type)) %>%
+  mutate(Matière = as.factor(Matière)) %>%
+  mutate(Matière = factor(Matière, labels = str_replace_all(levels(Matière),"\\."," "))) %>%
+
+  ggplot(aes(x=reorder(Matière,Note,FUN=median),y=Note,fill=Type)) +
+  geom_boxplot() +
+  coord_flip() +
+  facet_grid(Type~., scales = "free_y", space = "free_y") +
+  xlab("Matières") + ylab("Moyennes") +
+  theme_cpesr_cap() +
+  theme(
+    panel.grid.major.y = element_blank(),
+    panel.grid.major.x = element_line(color="grey",size=0.2)
+    )
+```
+
+
+```{r notes.2.data, fig.width=10, fig.height=6}
+df <- bg21 %>%
+  select(Numéro,Série.Domaine.Filière, Niveau.de.la.classe, starts_with('Moyenne')) %>%
+  pivot_longer(
+    cols = starts_with('Moyenne'),
+    names_pattern = "Moyenne\\.(classe|candidat|plus.basse|plus.haute)\\.en\\.(.*)\\.Trimestre\\.(.*)",
+    names_to = c("Groupe","Matière","Trimestre"),
+    values_to = "Note",
+    values_transform = list(Note = as.numeric),
+    values_drop_na = TRUE
+  ) %>%
+  left_join(matieres) %>%
+  mutate(Type = fct_rev(Type)) %>%
+  mutate(Matière = as.factor(Matière)) %>%
+  mutate(Matière = factor(Matière, labels = str_replace_all(levels(Matière),"\\."," ")))
+```
+
+```{r notes.cand.plot, fig.width=10, fig.height=8}
+df %>%
+  filter(Groupe == "candidat") %>%
+  ggplot(aes(x=reorder(Matière,Note,FUN=median),y=Note,fill=Type)) +
+  geom_boxplot() +
+  coord_flip() +
+  facet_grid(Type~Groupe, scales = "free_y", space = "free_y") +
+  xlab("Matières") + ylab("Moyennes") +
+  ylim(0,20)+
+  ggtitle("Moyennes trimestrielles des candidats") +
+  theme_cpesr_cap() +
+  theme(
+    panel.grid.major.y = element_blank(),
+    panel.grid.major.x = element_line(color="grey",size=0.2)
+    )
+```
+
+
+```{r notes.2.plot, fig.width=10, fig.height=8}
+df %>%
+  filter(Groupe == "classe") %>%
+  ggplot(aes(x=reorder(Matière,Note,FUN=median),y=Note,fill=Type)) +
+  geom_boxplot() +
+  coord_flip() +
+  facet_grid(Type~Groupe, scales = "free_y", space = "free_y") +
+  xlab("Matières") + ylab("Moyennes") +
+  ylim(0,20)+
+  ggtitle("Moyennes trimestrielles des classes des candidats ") +
+  theme_cpesr_cap() +
+  theme(
+    panel.grid.major.y = element_blank(),
+    panel.grid.major.x = element_line(color="grey",size=0.2)
+    )
+```
+
+```{r notes.3.plot, fig.width=10, fig.height=8}
+df %>%
+  filter(Groupe %in% c("plus.basse","plus.haute")) %>%
+  ggplot(aes(x=reorder(Matière,Note, FUN=median),y=Note,fill=Type)) +
+  geom_boxplot() +
+  coord_flip() +
+  facet_grid(Type~Groupe, scales = "free_y", space = "free_y") +
+  xlab("Matières") + ylab("Moyennes") +
+  ylim(0,20)+
+  ggtitle("Moyennes trimestrielles plus basses et hautes\ndans les classes des candidats ") +
+  theme_cpesr_cap() +
+  theme(
+    panel.grid.major.y = element_blank(),
+    panel.grid.major.x = element_line(color="grey",size=0.2)
+    )
+```
