@@ -6,8 +6,9 @@ output: github_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 library(tidyverse)
-library(ggcpesrthemes)
 library(RColorBrewer)
+library(ggcpesrthemes)
+theme_cpesr_setup(authors = "Julien Gossa", source = "Parcoursup (une formation BUT Informatique)")
 ```
 
 ```{r load}
@@ -48,7 +49,8 @@ df %>%
     theme_cpesr_cap() +
     theme(
       panel.grid.major.y = element_blank(),
-      panel.grid.major.x = element_line(color="grey",size=0.2)
+      panel.grid.major.x = element_line(color="grey",size=0.2),
+      plot.title = element_text(hjust = 1)
       )
 ```
 
@@ -75,7 +77,8 @@ df %>%
     theme_cpesr_cap() +
     theme(
       panel.grid.major.y = element_blank(),
-      panel.grid.major.x = element_line(color="grey",size=0.2)
+      panel.grid.major.x = element_line(color="grey",size=0.2),
+      plot.title = element_text(hjust = 1)
       )
 ```
 
@@ -104,7 +107,8 @@ df %>%
     theme_cpesr_cap() +
     theme(
       panel.grid.major.y = element_blank(),
-      panel.grid.major.x = element_line(color="grey",size=0.2)
+      panel.grid.major.x = element_line(color="grey",size=0.2),
+      plot.title = element_text(hjust = 1)
       )
 ```
 
@@ -143,7 +147,8 @@ df %>%
     theme_cpesr_cap() +
     theme(
       panel.grid.major.y = element_blank(),
-      panel.grid.major.x = element_line(color="grey",size=0.2)
+      panel.grid.major.x = element_line(color="grey",size=0.2),
+      plot.title = element_text(hjust = 1)
       )
 ```
 
@@ -182,7 +187,8 @@ df %>%
     theme_cpesr_cap() +
     theme(
       panel.grid.major.y = element_blank(),
-      panel.grid.major.x = element_line(color="grey",size=0.2)
+      panel.grid.major.x = element_line(color="grey",size=0.2),
+      plot.title = element_text(hjust = 1)
       )
 ```
 
@@ -213,7 +219,8 @@ bg21 %>%
   theme_cpesr_cap() +
   theme(
     panel.grid.major.y = element_blank(),
-    panel.grid.major.x = element_line(color="grey",size=0.2)
+    panel.grid.major.x = element_line(color="grey",size=0.2),
+      plot.title = element_text(hjust = 1)
     )
 ```
 
@@ -248,7 +255,8 @@ df %>%
   theme_cpesr_cap() +
   theme(
     panel.grid.major.y = element_blank(),
-    panel.grid.major.x = element_line(color="grey",size=0.2)
+    panel.grid.major.x = element_line(color="grey",size=0.2),
+      plot.title = element_text(hjust = 1)
     )
 ```
 
@@ -266,7 +274,8 @@ df %>%
   theme_cpesr_cap() +
   theme(
     panel.grid.major.y = element_blank(),
-    panel.grid.major.x = element_line(color="grey",size=0.2)
+    panel.grid.major.x = element_line(color="grey",size=0.2),
+      plot.title = element_text(hjust = 1)
     )
 ```
 
@@ -283,6 +292,7 @@ df %>%
   theme_cpesr_cap() +
   theme(
     panel.grid.major.y = element_blank(),
-    panel.grid.major.x = element_line(color="grey",size=0.2)
+    panel.grid.major.x = element_line(color="grey",size=0.2),
+    plot.title = element_text(hjust = 1)
     )
 ```
