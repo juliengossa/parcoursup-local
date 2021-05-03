@@ -183,7 +183,7 @@ df %>%
     facet_grid(groupe~., scales = "free_y", space = "free_y", labeller = label_wrap_gen(width=6)) +
     xlab("Spécialités (spécialité abandonnée + options)") + ylab("Nombre de candidats") +
     guides(fill=FALSE) +
-    ggtitle("Catégorisation des candidats avec le nouveau Bac général (spécialités 1ere et Term + options)") +
+    ggtitle("Catégorisation des candidats avec le nouveau Bac général\n(spécialités 1ere et Terminale + options)") +
     theme_cpesr_cap() +
     theme(
       panel.grid.major.y = element_blank(),
