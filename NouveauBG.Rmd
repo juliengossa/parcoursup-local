@@ -240,15 +240,18 @@ df %>%
 ### Résumé
 
 ```{r bg.sum.plot, fig.width=10, fig.height=4}
-palette_sum <- rep(brewer.pal(2, "Paired")[1:2],nrow(all)/2+1)[1:nrow(all)]
+palfun <- function(x) rep(brewer.pal(3, "Paired")[1:2],x/2+1)[1:x]
+allnb <- all %>% group_by(categorisation) %>% summarise(nombre = n())
+palette_sum <- palfun(max(allnb$nombre))
 
 all %>%
   mutate(categorisation = factor(categorisation, levels=rev(c("Série","Série + Spécialité","Spécialités de Terminale", "Spécialités de Terminale + options","Spécialités de Première et Terminale + options")))) %>% 
-  mutate(cat = reorder(paste(categorisation,categorie),nombre)) %>%
-  ggplot(aes(x=categorisation,y=nombre,fill=cat)) +
+  mutate(cat = reorder(paste(categorisation,categorie),as.numeric(categorisation)*1000+nombre)) %>%
+  group_by(categorisation) %>% arrange(-nombre) %>% mutate(ifill = row_number()) %>%
+  ggplot(aes(x=categorisation,y=nombre, fill=as.factor(-ifill))) +
     geom_col(position="fill") +
     coord_flip() +
-    scale_fill_manual(values=rev(palette_sum)) +
+    scale_fill_manual(values=palette_sum) +
     scale_y_continuous(labels = scales::percent) +
     facet_grid(bac~., scales = "free_y", space = "free_y") +
     xlab("Critères de catégorisation") + ylab("Proportion des candidatures") +
