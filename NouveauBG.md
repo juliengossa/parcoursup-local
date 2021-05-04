@@ -26,6 +26,10 @@ Spécialités
 
 ![](NouveauBG_files/figure-gfm/bg21.cohorte.3.plot-1.png)<!-- -->
 
+### Résumé
+
+![](NouveauBG_files/figure-gfm/bg.sum.plot-1.png)<!-- -->
+
 ## Notes
 
 ![](NouveauBG_files/figure-gfm/notes.1-1.png)<!-- -->
@@ -35,3 +39,5 @@ Spécialités
 ![](NouveauBG_files/figure-gfm/notes.2.plot-1.png)<!-- -->
 
 ![](NouveauBG_files/figure-gfm/notes.3.plot-1.png)<!-- -->
+
+![](NouveauBG_files/figure-gfm/notes.4.plot-1.png)<!-- -->

@@ -33,6 +33,13 @@ bg19 <- read.csv("0671557D_Info.2019.csv",sep=";") %>%
 df <- bg19 %>%
   group_by(Série.Domaine.Filière) %>%
   summarise(nombre = n())
+
+all <- df %>% 
+  transmute(
+    bac = "Ancien Bac",
+    categorisation = "Série",
+    categorie = Série.Domaine.Filière,
+    nombre = nombre)
 ```
 
 - Nombre de groupes : `r nrow(df)`
@@ -43,9 +50,9 @@ df %>%
   ggplot(aes(x=reorder(Série.Domaine.Filière,nombre),y=nombre,fill=Série.Domaine.Filière)) +
     geom_col() +
     coord_flip() +
-    xlab("Série") + ylab("Nombre de candidats") +
+    xlab("Série") + ylab("Nombre de candidatures") +
     guides(fill=FALSE) +
-    ggtitle("Catégorisation des candidats avec l'ancien Bac général (séries)") +
+    ggtitle("Catégorisation des candidatures avec l'ancien Bac général (séries)") +
     theme_cpesr_cap() +
     theme(
       panel.grid.major.y = element_blank(),
@@ -59,7 +66,16 @@ df %>%
 df <- bg19 %>%
   group_by(Série.Domaine.Filière, Spécialité.diplôme) %>%
   summarise(nombre = n()) %>%
-  mutate(groupe = paste0(Série.Domaine.Filière,'(',Spécialité.diplôme,')'))
+  mutate(groupe = paste0(Série.Domaine.Filière,' (',Spécialité.diplôme,')'))
+
+all <- bind_rows(
+  all,
+  df %>% transmute(
+    bac = "Ancien Bac",
+    categorisation = "Série + Spécialité",
+    categorie = groupe,
+    nombre = nombre)       
+)
 ```
 
 - Nombre de groupes : `r nrow(df)`
@@ -67,13 +83,13 @@ df <- bg19 %>%
 
 ```{r bg19.cohorte.2.plot, fig.width=10, fig.height=3}
 df %>%
-  ggplot(aes(x=reorder(Spécialité.diplôme,nombre),y=nombre,fill=Série.Domaine.Filière)) +
+  ggplot(aes(x=reorder(groupe,nombre),y=nombre,fill=Série.Domaine.Filière)) +
     geom_col() +
     coord_flip() +
     facet_grid(Série.Domaine.Filière~., scales = "free_y", space = "free_y") +
-    xlab("Spécialité") + ylab("Nombre de candidats") +
+    xlab("Série (Spécialité)") + ylab("Nombre de candidatures") +
     guides(fill=FALSE) +
-    ggtitle("Catégorisation des candidats avec l'ancien Bac général (séries + options)") +
+    ggtitle("Catégorisation des candidatures avec l'ancien Bac général (séries + options)") +
     theme_cpesr_cap() +
     theme(
       panel.grid.major.y = element_blank(),
@@ -90,6 +106,15 @@ df <- bg21 %>%
   mutate(groupe = reorder(groupe,nombre))
 nb_groupes <- nrow(df)
 palette_groupes <- rep(brewer.pal(8, "Dark2"),nb_groupes/8+1)[1:nb_groupes]
+
+all <- bind_rows(
+  all,
+  df %>% transmute(
+    bac = "Bac Blanquer",
+    categorisation = "Spécialités de Terminale",
+    categorie = groupe,
+    nombre = nombre)
+)
 ```
 
 - Nombre de groupes : `r nrow(df)`
@@ -101,9 +126,9 @@ df %>%
     geom_col() +
     coord_flip() +
     scale_fill_manual(values=palette_groupes) +
-    xlab("Spécialités") + ylab("Nombre de candidats") +
+    xlab("Spécialités de Terminale") + ylab("Nombre de candidatures") +
     guides(fill=FALSE) +
-    ggtitle("Catégorisation des candidats avec le nouveau Bac général (spécialités)") +
+    ggtitle("Catégorisation des candidatures avec le nouveau Bac général (spécialités)") +
     theme_cpesr_cap() +
     theme(
       panel.grid.major.y = element_blank(),
@@ -111,6 +136,8 @@ df %>%
       plot.title = element_text(hjust = 1)
       )
 ```
+
+
 
 ```{r bg21.cohorte.2.data, fig.width=10, fig.height=15}
 df <- bg21 %>%
@@ -129,6 +156,15 @@ df <- bg21 %>%
   mutate(
     groupe = reorder(groupe,-nombre.grp),
     groupe.options = reorder(groupe.options,nombre.grp*1000+nombre))
+
+all <- bind_rows(
+  all,
+  df %>% transmute(
+    bac = "Bac Blanquer",
+    categorisation = "Spécialités de Terminale + options",
+    categorie = groupe.options,
+    nombre = nombre)
+)
 ```
 
 - Nombre de groupes : `r nrow(df)`
@@ -141,9 +177,9 @@ df %>%
     coord_flip() +
     scale_fill_manual(values=rev(palette_groupes)) +
     facet_grid(groupe~., scales = "free_y", space = "free_y", labeller = label_wrap_gen(width=6)) +
-    xlab("Spécialités (options)") + ylab("Nombre de candidats") +
+    xlab("Spécialités (options)") + ylab("Nombre de candidatures") +
     guides(fill=FALSE) +
-    ggtitle("Catégorisation des candidats avec le nouveau Bac général (spécialités + options)") +
+    ggtitle("Catégorisation des candidatures avec le nouveau Bac général (spécialités + options)") +
     theme_cpesr_cap() +
     theme(
       panel.grid.major.y = element_blank(),
@@ -169,6 +205,15 @@ df <- bg21 %>%
   mutate(
     groupe = reorder(groupe,-nombre.grp),
     groupe.options = reorder(groupe.options,nombre.grp*1000+nombre))
+
+all <- bind_rows(
+  all,
+  df %>% transmute(
+    bac = "Bac Blanquer",
+    categorisation = "Spécialités de 1ère et Term. + options",
+    categorie = groupe.options,
+    nombre = nombre)
+)
 ```
 
 - Nombre de groupes : `r nrow(df)`
@@ -181,9 +226,9 @@ df %>%
     coord_flip() +
     scale_fill_manual(values=rev(palette_groupes)) +
     facet_grid(groupe~., scales = "free_y", space = "free_y", labeller = label_wrap_gen(width=6)) +
-    xlab("Spécialités (spécialité abandonnée + options)") + ylab("Nombre de candidats") +
+    xlab("Spécialités (spécialité abandonnée + options)") + ylab("Nombre de candidatures") +
     guides(fill=FALSE) +
-    ggtitle("Catégorisation des candidats avec le nouveau Bac général\n(spécialités 1ere et Terminale + options)") +
+    ggtitle("Catégorisation des candidatures avec le nouveau Bac général\n(spécialités 1ere et Terminale + options)") +
     theme_cpesr_cap() +
     theme(
       panel.grid.major.y = element_blank(),
@@ -192,6 +237,30 @@ df %>%
       )
 ```
 
+### Résumé
+
+```{r bg.sum.plot, fig.width=10, fig.height=4}
+palette_sum <- rep(brewer.pal(2, "Paired")[1:2],nrow(all)/2+1)[1:nrow(all)]
+
+all %>%
+  mutate(categorisation = factor(categorisation, levels=rev(c("Série","Série + Spécialité","Spécialités de Terminale", "Spécialités de Terminale + options","Spécialités de Première et Terminale + options")))) %>% 
+  mutate(cat = reorder(paste(categorisation,categorie),nombre)) %>%
+  ggplot(aes(x=categorisation,y=nombre,fill=cat)) +
+    geom_col(position="fill") +
+    coord_flip() +
+    scale_fill_manual(values=rev(palette_sum)) +
+    scale_y_continuous(labels = scales::percent) +
+    facet_grid(bac~., scales = "free_y", space = "free_y") +
+    xlab("Critères de catégorisation") + ylab("Proportion des candidatures") +
+    guides(fill=FALSE) +
+    ggtitle("Taille des catégories comparables selon les Bacs et les critères") +
+    theme_cpesr_cap() +
+    theme(
+      panel.grid.major.y = element_blank(),
+      panel.grid.major.x = element_line(color="grey",size=0.2),
+      plot.title = element_text(hjust = 1)
+      )
+```
 
 ## Notes 
 
@@ -279,6 +348,8 @@ df %>%
     )
 ```
 
+
+
 ```{r notes.3.plot, fig.width=10, fig.height=8}
 df %>%
   filter(Groupe %in% c("plus.basse","plus.haute")) %>%
@@ -294,5 +365,26 @@ df %>%
     panel.grid.major.y = element_blank(),
     panel.grid.major.x = element_line(color="grey",size=0.2),
     plot.title = element_text(hjust = 1)
+    )
+```
+
+
+```{r notes.4.plot, fig.width=10, fig.height=3.5}
+df %>%
+  filter(Groupe %in% c("classe","candidat")) %>%
+  filter(Matière %in% c("Numérique et Sciences Informatiques", "Mathématiques Spécialité")) %>%
+  ggplot(aes(x=reorder(Matière,Note,FUN=median),y=Note,fill=Matière)) +
+  geom_boxplot() +
+  coord_flip() +
+  facet_grid(Groupe~., scales = "free_y", space = "free_y") +
+  xlab("Matières") + ylab("Moyennes") +
+  ylim(0,20)+
+  scale_fill_brewer(palette="Accent") +
+  ggtitle("Moyennes trimestrielles des classes et des candidats en NSI et Maths ") +
+  theme_cpesr_cap() +
+  theme(
+    panel.grid.major.y = element_blank(),
+    panel.grid.major.x = element_line(color="grey",size=0.2),
+      plot.title = element_text(hjust = 1)
     )
 ```
