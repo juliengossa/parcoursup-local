@@ -81,7 +81,7 @@ all <- bind_rows(
 - Nombre de groupes : `r nrow(df)`
 - Taille des groupes : `r range(df$nombre)`
 
-```{r bg19.cohorte.2.plot, fig.width=10, fig.height=3}
+```{r bg19.cohorte.2.plot, fig.width=10, fig.height=4}
 df %>%
   ggplot(aes(x=reorder(groupe,nombre),y=nombre,fill=Série.Domaine.Filière)) +
     geom_col() +
