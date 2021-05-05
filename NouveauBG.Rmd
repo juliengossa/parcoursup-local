@@ -89,7 +89,7 @@ df %>%
     facet_grid(Série.Domaine.Filière~., scales = "free_y", space = "free_y") +
     xlab("Série (Spécialité)") + ylab("Nombre de candidatures") +
     guides(fill=FALSE) +
-    ggtitle("Catégorisation des candidatures avec l'ancien Bac général (séries + options)") +
+    ggtitle("Catégorisation des candidatures avec l'ancien Bac général (séries + spécialités)") +
     theme_cpesr_cap() +
     theme(
       panel.grid.major.y = element_blank(),
