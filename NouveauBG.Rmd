@@ -245,7 +245,7 @@ allnb <- all %>% group_by(categorisation) %>% summarise(nombre = n())
 palette_sum <- palfun(max(allnb$nombre))
 
 all %>%
-  mutate(categorisation = factor(categorisation, levels=rev(c("Série","Série + Spécialité","Spécialités de Terminale", "Spécialités de Terminale + options","Spécialités de Première et Terminale + options")))) %>% 
+  mutate(categorisation = factor(categorisation, levels=rev(c("Série","Série + Spécialité","Spécialités de Terminale", "Spécialités de Terminale + options","Spécialités de 1ère et Term. + options")))) %>% 
   mutate(cat = reorder(paste(categorisation,categorie),as.numeric(categorisation)*1000+nombre)) %>%
   group_by(categorisation) %>% arrange(-nombre) %>% mutate(ifill = row_number()) %>%
   ggplot(aes(x=categorisation,y=nombre, fill=as.factor(-ifill))) +
